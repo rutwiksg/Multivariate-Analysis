@@ -1,0 +1,63 @@
+---
+title: "MVA_HW1"
+author: "Rutwik Guntoorkar"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(MVA)
+library(readr)
+Bumpus_sparrows <- read_csv("/Users/rutwik/Desktop/RBS/Sem 2/Multivariate Analysis/Bumpus_sparrows.csv")
+Bumpus_sparrows
+dim(Bumpus_sparrows)
+sparr <- Bumpus_sparrows
+sparr
+names(sparr)
+
+var(sparr)
+# Since it forces NA, lets take the first column which is survivorship out
+
+cov(sparr[, c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+
+#Taking a subset by survivorship of birds 
+cov(subset(sparr, Survivorship == "S")[,c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+cov(subset(sparr, Survivorship == "NS")[,c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+
+# Take the correlation
+cor(sparr[, c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+
+
+#Taking a subset by survivorship of birds 
+cor(subset(sparr, Survivorship == "S")[,c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+cor(subset(sparr, Survivorship == "NS")[,c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+
+#column means
+#For Survivors
+sparr_s <- sparr[1:21,-1] 
+colMeans(sparr_s)
+
+###Alternative
+colMeans(subset(sparr, Survivorship == "S")[,c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+
+
+#For Nonsurvivors
+sparr_ns <- sparr[22:49,-1]
+colMeans(sparr_ns)
+##Alternative
+colMeans(subset(sparr, Survivorship == "NS")[,c("Total_length", "Alar_extent", "L_beak_head", "L_humerous", "L_keel_sternum")])
+
+
+#Comparing the "Total_length" of birds
+
+survived <- (sparr_ns$Total_length)
+nonsurvived <- (sparr_s$Total_length)
+comp <- (cbind(survived,nonsurvived))
+boxplot(comp,beside=T)
+
+
+#Inference:
+### We can see that the mean total length of sparrows which survived (158.42857) was lesser than that of the sparrows which did not survive (158.42857)
+
+
+```
