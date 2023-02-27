@@ -1,0 +1,518 @@
+---
+title: "Multivariate Analysis - HW3"
+author: "Rutwik Guntoorkar"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(readr)
+library(SciViews)
+library(scatterplot3d)
+library(car)
+library(GGally)
+library(lattice)
+library(ggplot2)
+library(ggridges)
+library(ggvis)
+library(ggthemes)
+library(cowplot)
+library(gapminder)
+library(gganimate)
+library(dplyr)
+library(tidyverse)
+library(grid)
+library(gridExtra)
+library(RColorBrewer)
+
+wholesale <- read_csv("/Users/rutwik/Desktop/RBS/Sem 2/Multivariate Analysis/Wholesale customers data.csv")
+dim(wholesale)
+names(wholesale)
+str(wholesale)
+var(wholesale)
+# Since it forces NA, lets take the first column which is survivorship out
+
+
+cov(wholesale[, c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+
+#Taking a subset by survivorship of birds 
+cov(subset(wholesale, Channel == "Retail")[,c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+cov(subset(wholesale, Channel == "Horeca")[,c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+
+# Take the correlation
+cor(wholesale[, c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+
+
+#Taking a subset by survivorship of birds 
+cor(subset(wholesale, Channel == "Retail")[,c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+cor(subset(wholesale, Channel == "Horeca")[,c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+
+#column means
+#For Retail
+colMeans(subset(wholesale, Channel == "Retail")[,c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+
+#For Horeca
+colMeans(subset(wholesale, Channel == "Horeca")[,c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+  
+# ggplot
+#Using ggplot to plot different variables against Channel of the annual spending
+ggplot(wholesale, aes(x=Channel,y=Fresh)) + geom_point(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel,y=Milk)) + geom_point(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel,y=Grocery)) + geom_point(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel,y=Frozen)) + geom_point(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel,y=Detergents_Paper)) + geom_point(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel,y=Delicassen)) + geom_point(aes(color=Channel))
+
+
+```
+
+```{r}
+
+ggplot(wholesale, aes(x=Fresh, y=Milk)) + geom_point(aes(color=Channel))
+
+ggplot(wholesale, aes(x=Fresh,y=Milk)) + xlim(0,100000) + geom_point(aes(color=Channel), pch=17) + 
+  labs(x="Annual spending (m.u.) on Fresh products (Continuous)", y="Annual spending (m.u.) on Milk products (Continuous);", title="Wholesale Customer Data") 
+
+```
+
+```{r}
+
+# bar chart
+ggplot(wholesale, aes(Fresh)) + geom_bar(position="stack",aes(color=Channel)) 
+ggplot(wholesale, aes(Milk)) + geom_bar(position="stack",aes(color=Channel))
+ggplot(wholesale, aes(Grocery)) + geom_bar(position="stack",aes(color=Channel))
+ggplot(wholesale, aes(Frozen)) + geom_bar(position="stack",aes(color=Channel))
+ggplot(wholesale, aes(Detergents_Paper)) + geom_bar(position="stack",aes(color=Channel))
+ggplot(wholesale, aes(Delicassen)) + geom_bar(position="stack",aes(color=Channel))
+
+ggplot(wholesale, aes(Fresh)) + facet_grid(.~Channel) + geom_bar(position="dodge",aes(color=Channel))
+ggplot(wholesale, aes(Milk)) + facet_grid(.~Channel) + geom_bar(position="dodge",aes(color=Channel))
+ggplot(wholesale, aes(Grocery)) + facet_grid(.~Channel) + geom_bar(position="dodge",aes(color=Channel))
+ggplot(wholesale, aes(Frozen)) + facet_grid(.~Channel) + geom_bar(position="dodge",aes(color=Channel))
+ggplot(wholesale, aes(Detergents_Paper)) + facet_grid(.~Channel) + geom_bar(position="dodge",aes(color=Channel))
+ggplot(wholesale, aes(Delicassen)) + facet_grid(.~Channel) + geom_bar(position="dodge",aes(color=Channel))
+```
+
+```{r}
+# histogram
+ggplot(wholesale, aes(Fresh))+geom_histogram(aes(color=Channel))
+ggplot(wholesale, aes(Milk))+geom_histogram(aes(fill = after_stat(count)))
+ggplot(wholesale, aes(Grocery))+geom_histogram(aes(fill = after_stat(count)))
+
+```
+
+```{r}
+# violin plot 
+ggplot(wholesale, aes(x=Channel, y=Fresh)) + geom_violin(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Milk)) + geom_violin(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Grocery)) + geom_violin(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Frozen)) + geom_violin(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Detergents_Paper)) + geom_violin(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Delicassen)) + geom_violin(aes(color=Channel))
+```
+
+```{r}
+
+# box plot
+ggplot(wholesale, aes(x=Channel, y=Fresh)) + geom_boxplot(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Milk)) + geom_boxplot(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Grocery)) + geom_boxplot(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Frozen)) + geom_boxplot(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Detergents_Paper)) + geom_boxplot(aes(color=Channel))
+ggplot(wholesale, aes(x=Channel, y=Delicassen)) + geom_boxplot(aes(color=Channel))
+
+```
+
+```{r}
+# density plot and ggridges
+ggplot(wholesale, aes(x=Fresh, fill=Channel, color=Channel)) + geom_density(alpha=0.3, aes(y=..scaled..)) 
+
+```
+
+```{r}
+# hexbin
+ggplot(wholesale, aes(x=Fresh, y=Channel)) + geom_hex(aes(color=Channel)) 
+
+```
+
+```{r}
+cor(wholesale[, c("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper","Delicassen")])
+
+wholesale_data <- wholesale[,-c(1:2)]
+
+# Using prcomp to compute the principal components (eigenvalues and eigenvectors). With scale=TRUE, variable means are set to zero, and variances set to one
+wholesale_pca <- prcomp(wholesale_data,scale=TRUE)
+wholesale_pca
+summary(wholesale_pca)
+
+# sample scores stored in sparrows_pca$x
+# singular values (square roots of eigenvalues) stored in sparrow_pca$sdev
+# loadings (eigenvectors) are stored in sparrows_pca$rotation
+# variable means stored in sparrows_pca$center
+# variable standard deviations stored in sparrows_pca$scale
+# A table containing eigenvalues and %'s accounted, follows
+# Eigenvalues are sdev^2
+
+
+(eigen_wholesale <- wholesale_pca$sdev^2)
+names(eigen_wholesale) <- paste("PC",1:5,sep="")
+eigen_wholesale
+sumlambdas <- sum(eigen_wholesale)
+sumlambdas
+propvar <- eigen_wholesale/sumlambdas
+propvar
+cumvar_wholesale <- cumsum(propvar)
+cumvar_wholesale
+matlambdas <- rbind(eigen_wholesale,propvar,cumvar_wholesale)
+rownames(matlambdas) <- c("Eigenvalues","Prop. variance","Cum. prop. variance")
+round(matlambdas,3)
+summary(wholesale_pca)
+wholesale_pca$rotation
+print(wholesale_pca)
+## Sample scores stored in sparrow_pca$x
+wholesale_pca$x
+
+attach(wholesale)
+# Identifying the scores by their Channel status
+wholesale_channel_pca <- cbind(data.frame(Channel),wholesale_pca$x)
+wholesale_channel_pca
+
+
+# Means of scores for all the PC's classified by Channel status
+tabmeansPC <- aggregate(wholesale_channel_pca[,2:6],by=list(Channel=wholesale$Channel),mean)
+tabmeansPC
+tabmeansPC <- tabmeansPC[rev(order(tabmeansPC$Channel)),]
+tabmeansPC
+tabfmeans <- t(tabmeansPC[,-1])
+tabfmeans
+colnames(tabfmeans) <- t(as.vector(tabmeansPC[1]$Channel))
+tabfmeans
+
+
+
+# Standard deviations of scores for all the PC's classified by Channel status
+tabsdsPC <- aggregate(wholesale_channel_pca[,2:6],by=list(Channel=wholesale$Channel),sd)
+tabfsds <- t(tabsdsPC[,-1])
+colnames(tabfsds) <- t(as.vector(tabsdsPC[1]$Channel))
+tabfsds
+t.test(PC1~wholesale$Channel,data=wholesale_channel_pca)
+t.test(PC2~wholesale$Channel,data=wholesale_channel_pca)
+t.test(PC3~wholesale$Channel,data=wholesale_channel_pca)
+t.test(PC4~wholesale$Channel,data=wholesale_channel_pca)
+t.test(PC5~wholesale$Channel,data=wholesale_channel_pca)
+## F ratio tests
+var.test(PC1~wholesale$Channel,data=wholesale_channel_pca)
+var.test(PC2~wholesale$Channel,data=wholesale_channel_pca)
+var.test(PC3~wholesale$Channel,data=wholesale_channel_pca)
+var.test(PC4~wholesale$Channel,data=wholesale_channel_pca)
+var.test(PC5~wholesale$Channel,data=wholesale_channel_pca)
+
+# Levene's tests (one-sided)
+library(car)
+(LTPC1 <- leveneTest(PC1~wholesale$Channel,data=wholesale_channel_pca))
+(p_PC1_1sided <- LTPC1[[3]][1]/2)
+(LTPC2 <- leveneTest(PC2~wholesale$Channel,data=wholesale_channel_pca))
+(p_PC2_1sided=LTPC2[[3]][1]/2)
+(LTPC3 <- leveneTest(PC3~wholesale$Channel,data=wholesale_channel_pca))
+(p_PC3_1sided <- LTPC3[[3]][1]/2)
+(LTPC4 <- leveneTest(PC4~wholesale$Channel,data=wholesale_channel_pca))
+(p_PC4_1sided <- LTPC4[[3]][1]/2)
+(LTPC5 <- leveneTest(PC5~wholesale$Channel,data=wholesale_channel_pca))
+(p_PC5_1sided <- LTPC5[[3]][1]/2)
+# Plotting the scores for the first and second components
+plot(wholesale_channel_pca$PC1, wholesale_channel_pca$PC2,pch=ifelse(wholesale_pca$Channel == "Retail",1,16),xlab="PC1", ylab="PC2", main="Wholesale Customers against PC1&PC2")
+abline(h=0)
+abline(v=0)
+legend("bottomleft", legend=c("Retail","Horesca"), pch=c(1,16))
+plot(eigen_wholesale, xlab = "Component number", ylab = "Component variance", type = "l", main = "Scree diagram")
+plot(log(eigen_wholesale), xlab = "Component number",ylab = "log(Component variance)", type="l",main = "Log(eigenvalue) diagram")
+print(summary(wholesale_pca))
+diag(cov(wholesale_pca$x))
+xlim <- range(wholesale_pca$x[,1])
+wholesale_pca$x[,1]
+wholesale_pca$x
+plot(wholesale_pca$x,xlim=xlim,ylim=xlim)
+wholesale_pca$rotation[,1]
+wholesale_pca$rotation
+plot(wholesale[,-1])
+wholesale_pca$x
+plot(wholesale_pca)
+
+
+#get the original value of the data based on PCA
+center <- wholesale_pca$center
+scale <- wholesale_pca$scale
+new_wholesale <- as.matrix(wholesale[,-1])
+new_wholesale
+
+predict(wholesale_pca)[,1]
+#The aboved two gives us the same thing. predict is a good function to know.
+wholesale$Channel <- as.factor(wholesale$Channel)
+out <- sapply(1:5, function(i){plot(wholesale$Channel,wholesale_pca$x[,i],xlab=paste("PC",i,sep=""),ylab="Channel")})
+pairs(wholesale_pca$x[,1:5], ylim = c(-6,4),xlim = c(-6,4),panel=function(x,y,...){text(x,y,wholesale$Channel)})
+
+# Better Ways to Visualize
+
+library(factoextra)
+library(FactoMineR)
+library(ggfortify)
+library(psych)
+library(corrplot)
+library(devtools)
+
+# Correlation
+pairs.panels(wholesale[,-1],
+             gap = 0,
+             bg = c("red", "blue")[wholesale$Channel],
+             pch=21)
+
+pairs.panels(wholesale_pca$x,
+             gap=0,
+             bg = c("red", "blue")[wholesale$Channel],
+             pch=21)
+
+
+
+
+fviz_eig(wholesale_pca, addlabels = TRUE)
+fviz_pca_var(wholesale_pca,col.var = "cos2",
+             gradient.cols = c("#FFCC00", "#CC9933", "#660033", "#330033"),
+             repel = TRUE)
+fviz_pca_ind(wholesale_pca, col.ind = "cos2", 
+                  gradient.cols = c("#FFCC00", "#CC9933", "#660033", "#330033"), 
+                  repel = TRUE)
+biplot(wholesale_pca)
+autoplot(wholesale_pca,
+         data = wholesale[,-1],
+         loadings = TRUE,
+         labels = wholesale$Channel)
+
+# Different PCA Method. 
+res.pca <- PCA(wholesale[,-1], graph = FALSE)
+print(res.pca)
+
+# Visualize and Interpret PCA using these functions 
+
+#get_eigenvalue(res.pca): Extract the eigenvalues/variances of principal components
+#fviz_eig(res.pca): Visualize the eigenvalues
+#get_pca_ind(res.pca), get_pca_var(res.pca): Extract the results for individuals and variables, respectively.
+#fviz_pca_ind(res.pca), fviz_pca_var(res.pca): Visualize the results individuals and variables, respectively.
+#fviz_pca_biplot(res.pca): Make a biplot of individuals and variables.
+
+eig.val <- get_eigenvalue(res.pca)
+eig.val
+
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+
+var <- get_pca_var(res.pca)
+#var$coord: coordinates of variables to create a scatter plot
+#var$cos2: represents the quality of representation for variables on the factor map. It’s calculated as the squared coordinates: var.cos2 = var.coord * var.coord.
+#var$contrib: contains the contributions (in percentage) of the variables to the principal components. 
+#The contribution of a variable (var) to a given principal component is (in percentage) : (var.cos2 * 100) / (total cos2 of the component).
+var
+
+# Coordinates
+head(var$coord)
+# Cos2: quality on the factore map
+head(var$cos2)
+# Contributions to the principal components
+head(var$contrib)
+
+#The plot Below is also known as variable correlation plots. It shows the relationships between all variables. It can be interpreted as follow:
+
+#Positively correlated variables are grouped together.
+#Negatively correlated variables are positioned on opposite sides of the plot origin (opposed quadrants).
+#The distance between variables and the origin measures the quality of the variables on the factor map. 
+#Variables that are away from the origin are well represented on the factor map.
+
+# Correlation circle
+fviz_pca_var(res.pca, col.var = "black")
+
+# Quality of representation
+
+
+corrplot(var$cos2, is.corr=FALSE)
+# Total cos2 of variables on Dim.1 and Dim.2
+#A high cos2 indicates a good representation of the variable on the principal component. 
+#In this case the variable is positioned close to the circumference of the correlation circle.
+#A low cos2 indicates that the variable is not perfectly represented by the PCs. 
+#In this case the variable is close to the center of the circle.
+
+fviz_cos2(res.pca, choice = "var", axes = 1:2)
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+             )
+# Change the transparency by cos2 values
+fviz_pca_var(res.pca, alpha.var = "cos2")
+corrplot(var$contrib, is.corr=FALSE)
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
+fviz_pca_var(res.pca, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07")
+             )
+fviz_pca_var(res.pca, alpha.var = "contrib")
+
+fviz_pca_ind(res.pca,
+             geom.ind = "point", # show points only (nbut not "text")
+             col.ind = wholesale$Channel, # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = "Groups"
+             )
+
+
+# Description of PC
+
+res.desc <- dimdesc(res.pca, axes = c(1,2,3,4,5), proba = 0.05)
+# Description of dimension 1
+res.desc$Dim.1
+res.desc$Dim.2
+res.desc$Dim.3
+res.desc$Dim.4
+res.desc$Dim.5
+
+# Graph of Indiviuals
+ind <- get_pca_ind(res.pca)
+ind
+
+## Principal Component Analysis Results for individuals
+##  ===================================================
+##   Name       Description                       
+## 1 "$coord"   "Coordinates for the individuals" 
+## 2 "$cos2"    "Cos2 for the individuals"        
+## 3 "$contrib" "contributions of the individuals"
+#To get access to the different components, use this:
+
+# Coordinates of individuals
+head(ind$coord)
+# Quality of individuals
+head(ind$cos2)
+# Contributions of individuals
+head(ind$contrib)
+
+fviz_pca_ind(res.pca)
+
+fviz_pca_ind(res.pca, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+             )
+fviz_pca_ind(res.pca, pointsize = "cos2", 
+             pointshape = 21, fill = "#E7B800",
+             repel = TRUE # Avoid text overlapping (slow if many points)
+             )
+
+fviz_pca_ind(res.pca, col.ind = "cos2", pointsize = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+             )
+fviz_cos2(res.pca, choice = "ind")
+# Total contribution on PC1 and PC2
+fviz_contrib(res.pca, choice = "ind", axes = 1:2)
+
+# Create a random continuous variable of length 23,
+# Same length as the number of active individuals in the PCA
+set.seed(123)
+my.cont.var <- rnorm(49)
+# Color individuals by the continuous variable
+fviz_pca_ind(res.pca, col.ind = my.cont.var,
+             gradient.cols = c("blue", "yellow", "red"),
+             legend.title = "Cont.Var")
+
+fviz_pca_ind(res.pca,
+             geom.ind = "point", # show points only (nbut not "text")
+             col.ind = wholesale$Channel, # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = "Groups"
+             )
+
+fviz_pca_ind(res.pca, geom.ind = "point", col.ind = wholesale$Channel, 
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "confidence",
+             legend.title = "Groups"
+             )
+fviz_pca_ind(res.pca,
+             label = "none", # hide individual labels
+             habillage = wholesale$Channel, # color by groups
+             addEllipses = TRUE, # Concentration ellipses
+             palette = "jco"
+             )
+fviz_pca_var(res.pca, geom.var = c("point", "text"))
+# Show individuals text labels only
+fviz_pca_ind(res.pca, geom.ind =  "text")
+# Change the size of arrows an labels
+fviz_pca_var(res.pca, arrowsize = 1, labelsize = 5, 
+             repel = TRUE)
+# Change points size, shape and fill color
+# Change labelsize
+fviz_pca_ind(res.pca, 
+             pointsize = 3, pointshape = 21, fill = "lightblue",
+             labelsize = 5, repel = TRUE)
+
+fviz_pca_ind(res.pca,
+             geom.ind = "point", # show points only (but not "text")
+             group.ind = wholesale$Channel, # color by groups
+             legend.title = "Groups",
+             mean.point = FALSE)
+fviz_pca_ind(res.pca,
+             geom.ind = "point", # show points only (but not "text")
+             group.ind = wholesale$Channel, # color by groups
+             legend.title = "Groups",
+             mean.point = TRUE)
+fviz_pca_var(res.pca, axes.linetype = "blank")
+
+
+
+ind.p <- fviz_pca_ind(res.pca, geom = "point", col.ind = wholesale$Channel)
+ggpubr::ggpar(ind.p,
+              title = "Principal Component Analysis",
+              subtitle = "Wholesale Dataset",
+              xlab = "PC1", ylab = "PC2",
+              legend.title = "Channel", legend.position = "top",
+              ggtheme = theme_gray(), palette = "jco"
+              )
+
+fviz_pca_biplot(res.pca, repel = TRUE,col.ind = wholesale$Channel,
+                col.var = "#2E9FDF", # Variables color
+                )
+
+fviz_pca_biplot(res.pca, 
+                col.ind = wholesale$Channel, palette = "jco", 
+                addEllipses = TRUE, label = "var",
+                col.var = "black", repel = TRUE,
+                legend.title = "Channel") 
+
+fviz_pca_biplot(res.pca, 
+                # Fill individuals by groups
+                geom.ind = "point",
+                pointshape = 21,
+                pointsize = 2.5,
+                fill.ind = wholesale$Channel,
+                col.ind = "black",
+                # Color variable by groups
+                legend.title = list(fill = "Channel", color = "Clusters"),
+                repel = TRUE        # Avoid label overplotting
+             )+
+  ggpubr::fill_palette("jco")+      # Indiviual fill color
+  ggpubr::color_palette("npg")      # Variable colors
+
+fviz_pca_biplot(res.pca, 
+                # Individuals
+                geom.ind = "point",
+                fill.ind = wholesale$Channel, col.ind = "black",
+                pointshape = 21, pointsize = 2,
+                palette = "jco",
+                addEllipses = TRUE,
+                # Variables
+                alpha.var ="contrib", col.var = "contrib",
+                gradient.cols = "RdYlBu",
+                
+                legend.title = list(fill = "Channel", color = "Contrib",
+                                    alpha = "Contrib")
+                )
+
+
+```
