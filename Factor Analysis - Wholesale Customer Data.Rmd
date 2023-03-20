@@ -1,0 +1,55 @@
+---
+title: "Factor Analysis - Wholesale Customer Data"
+author: "Rutwik Guntoorkar"
+date: "2023-03-17"
+output: html_document
+---
+
+```{r}
+library(psych)
+library(readr)
+wcdata <- read.csv("/Users/rutwik/Desktop/RBS/Sem 2/Multivariate Analysis/Wholesale customers data.csv")
+attach(wcdata)
+
+
+fit.pc <- principal(wcdata[-1], nfactors=4, rotate="varimax")
+fit.pc
+
+#For Eigen Values
+fit.pc$values
+round(fit.pc$values, 3)
+
+fit.pc$loadings
+
+```
+>
+After looking at values, we can consider that:
+While RC1 shows relation with Milk, Grocery and Detergents_Paper; 
+RC2, RC3 and RC4 shows relations only with Frozen, Fresh and Delicassen respectively and individually.
+
+```{r}
+# Loadings with more digits
+for (i in c(1,3,2,4)) { print(fit.pc$loadings[[1,i]])}
+# Communalities
+fit.pc$communality
+# Rotated factor scores, Notice the columns ordering: RC1, RC3, RC2 and RC4
+fit.pc$scores
+
+# Play with FA utilities
+
+fa.parallel(wcdata[-1]) # See factor recommendation
+```
+>VSS complexity 1 achieves a maximimum of 0.82  with  3  factors
+VSS complexity 2 achieves a maximimum of 0.92  with  3  factors
+The Velicer MAP achieves a minimum of 0.15  with  2  factors 
+BIC achieves a minimum of  5.79  with  2  factors
+Sample Size adjusted BIC achieves a minimum of  18.49  with  2  factors
+Statistics by number of factors 
+
+```{r}
+fa.plot(fit.pc) # See Correlations within Factors
+fa.diagram(fit.pc) # Visualize the relationship
+vss(wcdata[-1]) # See Factor recommendations for a simple structure
+
+```
+
