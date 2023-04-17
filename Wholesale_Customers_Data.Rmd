@@ -1,0 +1,116 @@
+---
+title: "Wholesale Customers Data"
+author: "Rutwik Guntoorkar"
+date: "2023-04-14"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(cluster)
+library(readr)
+library(factoextra)
+library(magrittr)
+library(NbClust)
+```
+
+### Importing data. 
+
+```{r}
+wcdata <- read_csv("/Users/rutwik/Desktop/RBS/Sem 2/Multivariate Analysis/Wholesale customers data.csv")
+str(wcdata)
+summary(wcdata)
+```
+
+# Removing "Channel" and "Region" columns from the dataset
+
+```{r}
+mydata <- wcdata[, c(3:8)]
+```
+
+
+
+```{r}
+# Scale the variables to have zero mean and unit variance
+scaled_data <- scale(mydata)
+data_dist <- get_dist(mydata, stand = TRUE, method = "euclidean")
+
+
+
+km.res <- kmeans(scaled_data,4, nstart = 25)
+km.res
+
+fviz_nbclust(scaled_data, kmeans, method = "gap_stat")
+
+fviz_cluster(km.res, data = scaled_data,
+             ellipse.type = "convex",
+             palette = "jco",
+             ggtheme = theme_minimal())
+
+res.hc <- scaled_data %>% scale() %>% dist(method = "euclidean") %>%
+  hclust(method = "ward.D2")
+
+fviz_dend(res.hc, k = 3, # Cut in four groups
+          cex = 0.5, # label size
+          k_colors = c("#2E9FDF", "#FC4E07", "#00FF00" ),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+          )
+```
+
+>Cluster 1 has low values for all features except for Detergents_Paper and Groceries which has a high value. Cluster 2 has moderate values for Fresh, Frozen, and Delicassen, but low values for Milk, Grocery, and Detergents_Paper. Cluster 3 has very high values for all features.
+
+```{r}
+
+# Perform k-means clustering with the optimal number of clusters
+k <- 3 # Set the number of clusters
+kmeans_model <- kmeans(scaled_data, centers = k, nstart = 25)
+
+# Analyze the results
+wcdata$cluster_kmeans <- as.factor(kmeans_model$cluster)
+table(wcdata$cluster_kmeans)
+aggregate(mydata, by = list(wcdata$cluster_kmeans), FUN = mean)
+
+library(ggplot2)
+library(gridExtra)
+plot1 <- ggplot(wcdata, aes(x = Fresh, y = Milk, color = cluster_kmeans)) +
+  geom_point() + ggtitle("K-means clustering") + theme_bw()
+plot2 <- ggplot(wcdata, aes(x = Fresh, y = Grocery, color = cluster_kmeans)) +
+  geom_point() + ggtitle("K-means clustering") + theme_bw()
+plot3 <- ggplot(wcdata, aes(x = Fresh, y = Frozen, color = cluster_kmeans)) +
+  geom_point() + ggtitle("K-means clustering") + theme_bw()
+plot4 <- ggplot(wcdata, aes(x = Milk, y = Grocery, color = cluster_kmeans)) +
+  geom_point() + ggtitle("K-means clustering") + theme_bw()
+plot5 <- ggplot(wcdata, aes(x = Milk, y = Frozen, color = cluster_kmeans)) +
+  geom_point() + ggtitle("K-means clustering") + theme_bw()
+plot6 <- ggplot(wcdata, aes(x = Grocery, y = Frozen, color = cluster_kmeans)) +
+  geom_point() + ggtitle("K-means clustering") + theme_bw()
+grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, ncol = 2, nrow = 3)
+
+```
+
+```{r}
+# Perform hierarchical clustering using the complete linkage method
+data_2 <- dist(scaled_data, method = "euclidean")
+hc_comp <- hclust(data_2, method = "complete")
+
+# Plot the dendrogram
+plot(hc_comp, cex = 0.6, hang = -1, main = "Dendrogram")
+
+# Cut the dendrogram to obtain a clustering with k clusters
+k <- 3 # Set the number of clusters
+cluster_complete <- cutree(hc_comp, k)
+
+# Analyze the results
+wcdata$cluster_complete <- as.factor(cluster_complete)
+table(wcdata$cluster_complete)
+aggregate(mydata, by = list(wcdata$cluster_complete), FUN = mean)
+
+
+```
+
+------------------------------------------------------------------------------------------------------------------
+
+
+
